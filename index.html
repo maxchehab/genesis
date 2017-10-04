@@ -2,16 +2,94 @@
 <html lang="en">
 
 <head>
-     <title>Genesis :: C++ Textarea</title>
-     <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Ubuntu+Mono" rel="stylesheet">
-     <link href="./css/editor.css" rel="stylesheet">
+     <title>GENESIS</title>
+     <link rel="shortcut icon" href="./static/genesis_logo.jpg">
+
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+     <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Ubuntu+Mono|Overpass+Mono|Material+Icons" rel="stylesheet">
+
+     <link href="./css/editor.css" rel="stylesheet">
      <script src="./plugins/mousetrap/mousetrap.js" type="text/javascript" charset="utf-8"></script>
 
 </head>
 
 <body>
+
+     <div id="login-modal" class="register modal">
+          <div class="modal-content">
+               <div class="row">
+                    <form id="register-form" class="col s12">
+                         <h3 class="genesis">Please login to run your program.</h3>
+                         <div class="row">
+                              <div class="input-field col s12">
+                                   <input name="username" id="username" type="text" class="validate">
+                                   <label for="username">Username</label>
+                              </div>
+                         </div>
+                         <div class="row">
+                              <div class="input-field col s12">
+                                   <input id="email" name="email" type="email" class="validate">
+                                   <label for="email">Email</label>
+                              </div>
+                         </div>
+                         <div class="row">
+                              <div class="input-field col s12">
+                                   <input id="password" name="password" type="password" class="validate">
+                                   <label for="password">Password</label>
+                              </div>
+                         </div>
+                         <div class="row">
+                              <div class="input-field col s12">
+                                   <a id="register" class="waves-effect waves-light btn">Register</a>
+                                   <a id="change-login"class="waves-effect waves-teal btn-flat">Login</a>
+                              </div>
+                         </div>
+                    </form>
+                    <form id="login-form" class="col s12">
+                         <h3 class="genesis">Please login to run your program.</h3>
+                         <div class="row">
+                              <div class="input-field col s12">
+                                   <input name="username" id="username" type="text" class="validate">
+                                   <label for="username">Username</label>
+                              </div>
+                         </div>
+                         <div class="row">
+                              <div class="input-field col s12">
+                                   <input id="password" name="password" type="password" class="validate">
+                                   <label for="password">Password</label>
+                              </div>
+                         </div>
+
+                         <div class="row">
+                              <div class="input-field col s12">
+                                   <a id="login" class="waves-effect waves-light btn">Login</a>
+                                   <a id="change-register"class="waves-effect waves-teal btn-flat">Register</a>
+                              </div>
+                         </div>
+                    </form>
+               </div>
+          </div>
+
+     </div>
+
      <div class="terminal-show" id="container">
+          <nav id="navbar">
+               <div class="nav-wrapper">
+                    <a href="#" class="genesis brand-logo center">GENESIS</a>
+                    <ul id="nav-mobile" class="left hide-on-med-and-down">
+                         <li><a class="genesis waves-effect waves-light modal-trigger" href="#login-modal"><i class="material-icons right">play_arrow</i>RUN</a></li>
+                         <li><a class="genesis" href="#new"><i class="material-icons right">create</i>NEW</a></li>
+
+                    </ul>
+                    <ul id="nav-mobile" class="right hide-on-med-and-down">
+                         <li><a class="genesis" href="#share"><i class="material-icons right">share</i>SHARE</a></li>
+
+                    </ul>
+               </div>
+          </nav>
           <div id="editor"></div>
           <textarea class="mousetrap" spellcheck="false" id="terminal">genesis@maxchehab:~$ </textarea>
      </div>
@@ -60,6 +138,20 @@
 
                return false;
           });
+     </script>
+
+     <script>
+          $(document).ready(function() {
+               $('.modal').modal();
+          });
+
+          $("#change-register").click(function(){
+               $("#login-modal").addClass("register").removeClass("login");
+          });
+
+          $("#change-login").click(function(){
+               $("#login-modal").addClass("login").removeClass("register");
+          })
      </script>
 </body>
 

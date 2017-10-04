@@ -1,6 +1,6 @@
 .terminal-show #editor {
      position: absolute;
-     top: 0;
+     top: 54px;
      right: 0;
      bottom: 30%;
      left: 0;
@@ -8,10 +8,34 @@
 
 .terminal-hide #editor {
      position: absolute;
-     top: 0;
+     top: 54px;
      right: 0;
      bottom: 0;
      left: 0;
+}
+
+#navbar {
+     background-color: #24292e;
+}
+
+.genesis {
+     font-family: 'Overpass Mono', monospace;
+}
+
+.register #register-form{
+     display:block;
+}
+
+.register #login-form{
+     display:none;
+}
+
+.login #register-form{
+     display:none;
+}
+
+.login #login-form{
+     display:block;
 }
 
 .terminal-show #terminal {
@@ -30,6 +54,7 @@
      bottom: 0;
      left: 0;
      width: 100%;
+     height: 30%;
      margin: 0;
      padding: 0;
      resize: none;
