@@ -1,4 +1,5 @@
 <?php
+
 class WebSocketUser
 {
 	public $socket;
@@ -11,7 +12,6 @@ class WebSocketUser
 	public $partialMessage = "";
 
 	public $cookie = null;
-	public $query = array();
 
 	public $hasSentClose = false;
 	function __construct($id, $socket)

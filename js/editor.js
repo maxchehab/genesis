@@ -46,22 +46,53 @@ Mousetrap.bind('ctrl+alt+t', function(e) {
 });
 
 $("#login").click(function() {
+     var valid = true;
+
      var username = $("#login-username").val();
      var password = $("#login-password").val();
 
-     $.ajax({
-          url: './php/api/register.php',
-          type: 'POST',
-          data: {
-               username: username,
-               password: password
-          },
-          success: function(data) {
-               console.log(data);
-               $('#login-modal').modal('close');
-          }
-     });
-})
+     if (username.length == 0) {
+          $("#login-username-label").attr("data-error", "Username cannot be empty.");
+          $("#login-username").addClass("invalid");
+          valid = false;
+     }
+
+     if (password.length == 0) {
+          $("#login-password-label").attr("data-error", "Password cannot be empty.");
+          $("#login-password").addClass("invalid");
+          valid = false;
+     }login
+
+     if (valid) {
+          $.ajax({
+               url: './php/api/login.php',
+               type: 'POST',
+               data: {
+                    username: username,
+                    password: password
+               },
+               success: function(data) {
+                    console.log(data);
+                    data = JSON.parse(data);
+                    if (data.success) {
+                         createCookie("genesis_session", data.cookie, 1);
+                         $('#login-modal').modal('close');
+                    } else {
+                         for (var i = 0; i < data.errors.length; i++) {
+                              if (data.errors[i] == "No match.") {
+                                   $("#register-username-label").attr("data-error", "No match.");
+                                   $("#register-username").addClass("invalid");
+                                   $("#register-password-label").attr("data-error", "No match.");
+                                   $("#register-password").addClass("invalid");
+                              } else {
+                                   alert("Please try again later.\n\n" + data.errors[i]);
+                              }
+                         }
+                    }
+               }
+          });
+     }
+});
 
 $("#register").click(function() {
      var valid = true;
@@ -125,7 +156,6 @@ $("#register").click(function() {
                }
           });
      }
-
 });
 
 function isEmail(email) {
@@ -160,31 +190,4 @@ function loginCallback() {
      } else {
           lCallback = null;
      }
-}
-
-function createCookie(name, value, days) {
-     var expires = "";
-     if (days) {
-          var date = new Date();
-          date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-          expires = "; expires=" + date.toUTCString();
-     }
-     document.cookie = name + "=" + value + expires + "; path=/";
-}
-
-function readCookie(name) {
-     var nameEQ = name + "=";
-     var ca = document.cookie.split(';');
-     for (var i = 0; i < ca.length; i++) {
-          var c = ca[i];
-          while (c.charAt(0) == ' ')
-               c = c.substring(1, c.length);
-          if (c.indexOf(nameEQ) == 0)
-               return c.substring(nameEQ.length, c.length);
-          }
-     return null;
-}
-
-function eraseCookie(name) {
-     createCookie(name, "", -1);
 }
