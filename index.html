@@ -3,7 +3,7 @@
 
 <head>
      <title>GENESIS</title>
-     <link rel="shortcut icon" href="./static/genesis_logo.jpg">
+     <link rel="shortcut icon" href="./static/genesis_logo.png">
 
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
@@ -17,56 +17,55 @@
 </head>
 
 <body>
-
      <div id="login-modal" class="register modal">
           <div class="modal-content">
                <div class="row">
                     <form id="register-form" class="col s12">
-                         <h3 class="genesis">Please login to run your program.</h3>
+                         <h3 class="genesis">Please login for terminal access.</h3>
                          <div class="row">
                               <div class="input-field col s12">
-                                   <input name="username" id="username" type="text" class="validate">
-                                   <label for="username">Username</label>
+                                   <input id="register-username" type="text" class="validate">
+                                   <label id="register-username-label" for="email">Username</label>
                               </div>
                          </div>
                          <div class="row">
                               <div class="input-field col s12">
-                                   <input id="email" name="email" type="email" class="validate">
-                                   <label for="email">Email</label>
+                                   <input id="register-email"  type="email" class="validate">
+                                   <label id="register-email-label" for="register-email">Email</label>
                               </div>
                          </div>
                          <div class="row">
                               <div class="input-field col s12">
-                                   <input id="password" name="password" type="password" class="validate">
-                                   <label for="password">Password</label>
+                                   <input id="register-password"  type="password" class="validate">
+                                   <label id="register-password-label" for="register-password">Password</label>
                               </div>
                          </div>
                          <div class="row">
                               <div class="input-field col s12">
                                    <a id="register" class="waves-effect waves-light btn">Register</a>
-                                   <a id="change-login"class="waves-effect waves-teal btn-flat">Login</a>
+                                   <a id="change-login"class="waves-effect waves-teal btn-flat">I have an account.</a>
                               </div>
                          </div>
                     </form>
                     <form id="login-form" class="col s12">
-                         <h3 class="genesis">Please login to run your program.</h3>
+                         <h3 class="genesis">Please login for terminal access.</h3>
                          <div class="row">
                               <div class="input-field col s12">
-                                   <input name="username" id="username" type="text" class="validate">
-                                   <label for="username">Username</label>
+                                   <input id="login-username" type="text" class="validate">
+                                   <label for="login-username">Username</label>
                               </div>
                          </div>
                          <div class="row">
                               <div class="input-field col s12">
-                                   <input id="password" name="password" type="password" class="validate">
-                                   <label for="password">Password</label>
+                                   <input id="login-password" type="password" class="validate">
+                                   <label for="login-password">Password</label>
                               </div>
                          </div>
 
                          <div class="row">
                               <div class="input-field col s12">
                                    <a id="login" class="waves-effect waves-light btn">Login</a>
-                                   <a id="change-register"class="waves-effect waves-teal btn-flat">Register</a>
+                                   <a id="change-register"class="waves-effect waves-teal btn-flat">I don't have an account.</a>
                               </div>
                          </div>
                     </form>
@@ -75,13 +74,14 @@
 
      </div>
 
-     <div class="terminal-show" id="container">
+     <div class="terminal-hide" id="container">
           <nav id="navbar">
                <div class="nav-wrapper">
                     <a href="#" class="genesis brand-logo center">GENESIS</a>
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
-                         <li><a class="genesis waves-effect waves-light modal-trigger" href="#login-modal"><i class="material-icons right">play_arrow</i>RUN</a></li>
-                         <li><a class="genesis" href="#new"><i class="material-icons right">create</i>NEW</a></li>
+                         <li><a id="run-button" class="genesis waves-effect waves-light"><i class="material-icons right">play_arrow</i>RUN</a></li>
+                         <li><a class="genesis waves-effect waves-light"><i class="material-icons right">create</i>NEW</a></li>
+                         <li><a id="terminal-button" class="genesis waves-effect waves-light"><i class="material-icons right">keyboard</i>TERMINAL</a></li>
 
                     </ul>
                     <ul id="nav-mobile" class="right hide-on-med-and-down">
@@ -95,64 +95,8 @@
      </div>
 
      <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.8/ace.js" type="text/javascript" charset="utf-8"></script>
-     <script>
-          var editor = ace.edit("editor");
-          editor.setTheme("ace/theme/monokai");
-          editor.getSession().setMode("ace/mode/c_cpp");
-          editor.setFontSize(16);
-          editor.setOptions({
-               fontFamily: "'Source Code Pro', monospace",
-          });
-          editor.commands.addCommand({
-               name: "terminal",
-               bindKey: {
-                    win: "Ctrl-Alt-T",
-                    mac: "Command-Option-T"
-               },
-               exec: function(editor) {
-                    if ($("#container").hasClass("terminal-hide")) {
-                         $("#container").addClass("terminal-show");
-                         $("#container").removeClass("terminal-hide");
-                         $("#terminal").focus();
-                    } else {
-                         $("#container").removeClass("terminal-show");
-                         $("#container").addClass("terminal-hide");
-                    }
-                    window.dispatchEvent(new Event('resize'))
+     <script src="./js/editor.js" type="text/javascript" charset="utf-8"></script>
 
-               }
-          });
-     </script>
-
-     <script>
-          Mousetrap.bind('ctrl+alt+t', function(e) {
-               if ($("#container").hasClass("terminal-hide")) {
-                    $("#container").addClass("terminal-show");
-                    $("#container").removeClass("terminal-hide");
-                    $("#terminal").focus();
-               } else {
-                    $("#container").removeClass("terminal-show");
-                    $("#container").addClass("terminal-hide");
-               }
-               window.dispatchEvent(new Event('resize'))
-
-               return false;
-          });
-     </script>
-
-     <script>
-          $(document).ready(function() {
-               $('.modal').modal();
-          });
-
-          $("#change-register").click(function(){
-               $("#login-modal").addClass("register").removeClass("login");
-          });
-
-          $("#change-login").click(function(){
-               $("#login-modal").addClass("login").removeClass("register");
-          })
-     </script>
 </body>
 
 </html>
