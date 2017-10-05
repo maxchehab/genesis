@@ -1,11 +1,11 @@
 var terminal = {
      socket: {},
-     pwd: "genesis@maxchehab:~$",
+     pwd: "genesis@maxchehab:~$ ",
      awaiting: false,
      log: function(msg) {
           console.log(msg);
           let terminal = document.getElementById("terminal");
-          terminal.value += msg + this.pwd + " ";
+          terminal.value += msg + "\n" + this.pwd;
           terminal.scrollTop = terminal.scrollHeight;
      },
 
@@ -36,13 +36,12 @@ var terminal = {
                if (e.which == 13) {
                     var content = this.value;
                     var lastLine = content.substr(content.lastIndexOf("\n") + 1);
-                    that.send(lastLine.substr(that.pwd.length + 1));
+                    that.send(lastLine.substr(that.pwd.length));
                }
           });
      },
 
      send: function(msg) {
-          createCookie("test", "asdfa", 2);
           try {
                this.socket.send(msg);
                this.awaiting = true;
