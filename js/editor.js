@@ -7,6 +7,7 @@ $(document).ready(function() {
 });
 
 var lCallback = null;
+var terminalConnected = false;
 
 var editor = ace.edit("editor");
 editor.setTheme("ace/theme/monokai");
@@ -61,7 +62,7 @@ $("#login").click(function() {
           $("#login-password-label").attr("data-error", "Password cannot be empty.");
           $("#login-password").addClass("invalid");
           valid = false;
-     }login
+     }
 
      if (valid) {
           $.ajax({
@@ -80,10 +81,10 @@ $("#login").click(function() {
                     } else {
                          for (var i = 0; i < data.errors.length; i++) {
                               if (data.errors[i] == "No match.") {
-                                   $("#register-username-label").attr("data-error", "No match.");
-                                   $("#register-username").addClass("invalid");
-                                   $("#register-password-label").attr("data-error", "No match.");
-                                   $("#register-password").addClass("invalid");
+                                   $("#login-username-label").attr("data-error", "No match.");
+                                   $("#login-username").addClass("invalid");
+                                   $("#login-password-label").attr("data-error", "No match.");
+                                   $("#login-password").addClass("invalid");
                               } else {
                                    alert("Please try again later.\n\n" + data.errors[i]);
                               }
@@ -168,11 +169,18 @@ function toggleTerminal() {
      if ($("#container").hasClass("terminal-hide")) {
           $("#container").addClass("terminal-show");
           $("#container").removeClass("terminal-hide");
-          $("#terminal").focus();
+
+          if(!terminalConnected){
+               connectTerminal();
+               terminalConnected = true;
+          }
+
      } else {
           $("#container").removeClass("terminal-show");
           $("#container").addClass("terminal-hide");
      }
+
+	window.dispatchEvent(new Event('resize'));
 }
 
 function login(callback) {
