@@ -1,3 +1,5 @@
+$.getScript("./docker/terminal.js");
+
 $(document).ready(function() {
      $('.modal').modal({
           complete: function() {
@@ -77,6 +79,7 @@ $("#login").click(function() {
                     data = JSON.parse(data);
                     if (data.success) {
                          createCookie("genesis_session", data.cookie, 1);
+                         createCookie("genesis_user", username, 1);
                          $('#login-modal').modal('close');
                     } else {
                          for (var i = 0; i < data.errors.length; i++) {
@@ -140,6 +143,8 @@ $("#register").click(function() {
                     data = JSON.parse(data);
                     if (data.success) {
                          createCookie("genesis_session", data.cookie, 1);
+                         createCookie("genesis_user", username, 1);
+
                          $('#login-modal').modal('close');
                     } else {
                          for (var i = 0; i < data.errors.length; i++) {
@@ -184,7 +189,7 @@ function toggleTerminal() {
 }
 
 function login(callback) {
-     if (readCookie("genesis_session") != null) {
+     if (readCookie("genesis_session") != null && readCookie("genesis_user") != null) {
           callback();
      }else{
           lCallback = callback;
@@ -193,7 +198,7 @@ function login(callback) {
 }
 
 function loginCallback() {
-     if (readCookie("genesis_session") != null && lCallback != null) {
+     if (readCookie("genesis_session") != null && readCookie("genesis_user") != null && lCallback != null) {
           lCallback();
      } else {
           lCallback = null;

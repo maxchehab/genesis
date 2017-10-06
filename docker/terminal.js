@@ -9367,7 +9367,7 @@ inherits(DestroyableTransform, Transform)
 DestroyableTransform.prototype.destroy = function(err) {
   if (this._destroyed) return
   this._destroyed = true
-
+  
   var self = this
   process.nextTick(function() {
     if (err)
@@ -9589,13 +9589,15 @@ var websocket = require('websocket-stream')
 // create a stream for any docker image
 // use docker({style:false}) to disable default styling
 // all other options are forwarded to the term.js instance
-var terminal = docker()
+window.connectTerminal = function() {
+     var terminal = docker()
 
-// connect to a docker-browser-console server
-terminal.pipe(websocket('ws://104.236.141.69:10000')).pipe(terminal)
+     // connect to a docker-browser-console server
+     terminal.pipe(websocket('ws://104.236.141.69:61599')).pipe(terminal)
 
-// append the terminal to a DOM element
-terminal.appendTo(document.getElementById("terminal"));
+     // append the terminal to a DOM element
+     terminal.appendTo(document.getElementById("terminal"));
+};
 
 },{"./docker-browser-console":1,"websocket-stream":56}],36:[function(require,module,exports){
 (function (Buffer){
