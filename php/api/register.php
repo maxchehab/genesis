@@ -35,6 +35,13 @@
                $response = error("Database error: " . mysqli_error($link), $response);
           }else{
                $response["cookie"] = $cookie;
+               if(isset($_POST["workspaceID"])){
+                    $workspaceID = $_POST['workspaceID'];
+                    $query = mysqli_query($link,"UPDATE `workspaces` SET `userID`='$userID' WHERE `workspaceID`='$workspaceID'");
+                    if(!$query){
+                         $response = error("Database error: " . mysqli_error($link), $response);
+                    }
+               }
           }
      }
 

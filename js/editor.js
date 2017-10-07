@@ -26,6 +26,23 @@ editor.commands.addCommand({
           login(toggleTerminal);
      }
 });
+editor.getSession().on('change', function() {
+     save();
+});
+
+$.ajax({
+     url: './php/api/open.php',
+     type: 'POST',
+     success: function(data) {
+          console.log(data);
+          data = JSON.parse(data);
+          if (data.success) {
+               editor.setValue(data.file, -1);
+          } else {
+               alert("There was a problem loading your workspace. Please try again later.")
+          }
+     }
+});
 
 $("#change-register").click(function() {
      $("#login-modal").addClass("register").removeClass("login");
@@ -165,6 +182,26 @@ $("#register").click(function() {
           });
      }
 });
+var delayTimer;
+function save() {
+     clearTimeout(delayTimer);
+     delayTimer = setTimeout(function() {
+          $.ajax({
+               url: './php/api/save.php',
+               type: 'POST',
+               data: {
+                    data: editor.getSession().getValue()
+               },
+               success: function(data) {
+                    console.log(data);
+                    data = JSON.parse(data);
+                    if (!data.success) {
+                         alert(data.errors.join('\n'));
+                    }
+               }
+          });
+     }, 200);
+}
 
 function isEmail(email) {
      var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
@@ -177,7 +214,7 @@ function toggleTerminal() {
           $("#container").addClass("terminal-show");
           $("#container").removeClass("terminal-hide");
 
-          if(!terminalConnected){
+          if (!terminalConnected) {
                connectTerminal();
                terminalConnected = true;
           }
@@ -187,13 +224,13 @@ function toggleTerminal() {
           $("#container").addClass("terminal-hide");
      }
 
-	window.dispatchEvent(new Event('resize'));
+     window.dispatchEvent(new Event('resize'));
 }
 
 function login(callback) {
      if (readCookie("genesis_session") != null && readCookie("genesis_user") != null) {
           callback();
-     }else{
+     } else {
           lCallback = callback;
           $('#login-modal').modal('open');
      }
