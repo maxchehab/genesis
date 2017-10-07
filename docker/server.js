@@ -8,18 +8,18 @@ server.on('connection', function(socket, request) {
      console.log("new connection");
 
      var cookies = parseCookies(request);
-     console.log(cookies.genesis_user + " : " + cookies.genesis_session);
 
      socket.on('disconnect', function() {
           console.log('user disconnected');
      });
 
-     socket = websocket(socket)
+     socket = websocket(socket);
+
+     var volumes = {};
+     volumes['/home/maxchehab/www/genesis/docker/volumes/' + cookies.genesis_workspaceID] = '/genesis';
 
      socket.pipe(docker('gpp', {
-          volumes: {
-               '/home/maxchehab/www/genesis/docker/volume': '/genesis'
-          }
+          volumes
      })).pipe(socket)
 
 })

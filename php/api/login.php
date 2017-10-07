@@ -17,9 +17,12 @@
      $users = mysqli_query($link,"SELECT * FROM `users` WHERE `username`='$username'");
 
      $found = false;
+     $userID = '';
      while ($user = mysqli_fetch_array($users)) {
           if(hashword($password, $user['salt']) == $user['password']){
+               $userID = $user['userID'];
                $found = true;
+               break;
           }
      }
 
@@ -32,6 +35,14 @@
                $response = error("Database error: " . mysqli_error($link), $response);
           }else{
                $response["cookie"] = $cookie;
+               if(isset($_POST["workspaceID"])){
+                    $workspaceID = $_POST['workspaceID'];
+                    $response["debug"] = $userID;
+                    $query = mysqli_query($link,"UPDATE `workspaces` SET `userID`='$userID' WHERE `workspaceID`='$workspaceID'");
+                    if(!$query){
+                         $response = error("Database error: " . mysqli_error($link), $response);
+                    }
+               }
           }
      }
 

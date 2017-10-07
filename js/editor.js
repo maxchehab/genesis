@@ -72,7 +72,8 @@ $("#login").click(function() {
                type: 'POST',
                data: {
                     username: username,
-                    password: password
+                    password: password,
+                    workspaceID: readCookie('genesis_workspaceID')
                },
                success: function(data) {
                     console.log(data);
@@ -136,7 +137,8 @@ $("#register").click(function() {
                data: {
                     username: username,
                     email: email,
-                    password: password
+                    password: password,
+                    workspaceID: readCookie('genesis_workspaceID')
                },
                success: function(data) {
                     console.log(data);

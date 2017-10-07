@@ -29,8 +29,8 @@
      }
 
      if($response["success"]){
-          $query = mysqli_query($link,"INSERT INTO `users` (`userID`, `username`, `email`, `password`, `salt`, `cookie`)
-                                        VALUES ('$userID', '$username', '$email', '$password', '$salt', '$cookie')");
+          $query = mysqli_query($link,"INSERT INTO `users` (`userID`, `username`, `email`, `password`, `salt`, `cookie`, `dockerID`)
+                                        VALUES ('$userID', '$username', '$email', '$password', '$salt', '$cookie', '')");
           if(!$query){
                $response = error("Database error: " . mysqli_error($link), $response);
           }else{

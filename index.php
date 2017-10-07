@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,6 +9,34 @@
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
      <script src="./js/cookie.js"></script>
 
+     <?php
+          require_once('./php/lib/crypto.php');
+
+          $link = mysqli_connect("localhost", "genesis", "genesis", "genesis");
+          $userID = '';
+
+          if(isset($_COOKIE["genesis_session"], $_COOKIE["genesis_user"])){
+               $cookie = $_COOKIE["genesis_session"];
+               $username = encrypt_decrypt('encrypt', $_COOKIE["genesis_user"]);
+
+               $users = mysqli_query($link,"SELECT * FROM `users` WHERE `username`='$username'");
+               while ($user = mysqli_fetch_array($users)) {
+                    if($cookie == $user['cookie']){
+                         $userID = $user['userID'];
+                         break;
+                    }
+               }
+          }
+
+          $workspaceID = uuid();
+
+          mkdir("./docker/volumes/" . $workspaceID);
+          copy("./docker/templates/main.cpp","./docker/volumes/" . $workspaceID . "/main.cpp");
+
+          $query = mysqli_query($link,"INSERT INTO `workspaces` (`workspaceID`, `userID`, `name`)
+                                   VALUES ('$workspaceID', '$userID', 'Untitled Workspace')");
+     ?>
+     <script>createCookie("genesis_workspaceID", "<?php echo $workspaceID; ?>" , 1); </script>
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
      <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
      <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Ubuntu+Mono|Overpass+Mono|Material+Icons" rel="stylesheet">
