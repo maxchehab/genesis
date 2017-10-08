@@ -6,7 +6,6 @@
      $response["errors"] = array();
 
      $workspaceID = $_COOKIE["genesis_workspaceID"];
-     $data = $_POST["data"];
 
      $link = mysqli_connect("localhost", "genesis", "genesis", "genesis");
 
@@ -28,7 +27,7 @@
      $workspace_userID =  mysqli_fetch_array($results)["userID"];
 
      if($workspace_userID == $userID || $workspace_userID == ''){
-          file_put_contents("../../docker/volumes/" . $workspaceID . "/main.cpp", $data);
+          $response["directory"] = dirToArray("../../docker/volumes/" . $workspaceID . "/");
           $response["success"] = true;
      }else{
           error("You do not have authorization to access this file.", $response);
@@ -42,5 +41,22 @@
           $response["success"] = false;
           array_push($response["errors"], $error);
           return $response;
+     }
+
+
+     function dirToArray($dir) {
+          $result = array();
+
+          $cdir = scandir($dir);
+          foreach ($cdir as $key => $value) {
+               if (!in_array($value,array(".",".."))){
+                    if (is_dir($dir . "/" . $value)) {
+                         $result[$value] = dirToArray($dir . "/" . $value);
+                    }else{
+                         $result[] = $value;
+                    }
+               }
+          }
+          return $result;
      }
 ?>

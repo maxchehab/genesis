@@ -1,15 +1,60 @@
 .terminal-show #editor {
      position: absolute;
-     top: 54px;
+     top: 0;
      right: 0;
      bottom: 30%;
      left: 0;
 }
 
+#directory{
+     background-color: #272822;
+}
+
+
 .terminal-hide #editor {
      position: absolute;
-     top: 54px;
+     top: 0;
      right: 0;
+     bottom: 0;
+     left: 0;
+}
+
+#parent{
+     position: absolute;
+     top: 64px;
+     right: 0;
+     bottom: 0;
+     left: 0;
+}
+
+
+.directory-show #container{
+     position: absolute;
+     top: 0;
+     right: 0;
+     bottom: 0;
+     left: 15%;
+}
+.directory-show #directory{
+     position: absolute;
+     top: 0;
+     right: 85%;
+     bottom: 0;
+     left: 0;
+}
+
+.directory-hide #container{
+     position: absolute;
+     top: 0;
+     right: 0;
+     bottom: 0;
+     left: 0;
+}
+
+.directory-hide #directory{
+     position: absolute;
+     top: 0;
+     right: 100%;
      bottom: 0;
      left: 0;
 }

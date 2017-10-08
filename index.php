@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -36,13 +35,20 @@
           $query = mysqli_query($link,"INSERT INTO `workspaces` (`workspaceID`, `userID`, `name`)
                                    VALUES ('$workspaceID', '$userID', 'Untitled Workspace')");
      ?>
-     <script>createCookie("genesis_workspaceID", "<?php echo $workspaceID; ?>" , 1); </script>
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
-     <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Ubuntu+Mono|Overpass+Mono|Material+Icons" rel="stylesheet">
+          <script>
+               createCookie("genesis_workspaceID", "<?php echo $workspaceID; ?>", 1);
+          </script>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+          <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Ubuntu+Mono|Overpass+Mono|Material+Icons" rel="stylesheet">
 
-     <link href="./css/editor.css" rel="stylesheet">
-     <script src="./plugins/mousetrap/mousetrap.js" type="text/javascript" charset="utf-8"></script>
+          <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
+          <link href="./plugins/file-explore/file-explore.css" rel="stylesheet" type="text/css">
+          <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+          <link href="./css/editor.css" rel="stylesheet">
+          <script src="./plugins/mousetrap/mousetrap.js" type="text/javascript" charset="utf-8"></script>
 
 </head>
 
@@ -60,20 +66,20 @@
                          </div>
                          <div class="row">
                               <div class="input-field col s12">
-                                   <input id="register-email"  type="email" class="validate">
+                                   <input id="register-email" type="email" class="validate">
                                    <label id="register-email-label" for="register-email">Email</label>
                               </div>
                          </div>
                          <div class="row">
                               <div class="input-field col s12">
-                                   <input id="register-password"  type="password" class="validate">
+                                   <input id="register-password" type="password" class="validate">
                                    <label id="register-password-label" for="register-password">Password</label>
                               </div>
                          </div>
                          <div class="row">
                               <div class="input-field col s12">
                                    <a id="register" class="waves-effect waves-light btn">Register</a>
-                                   <a id="change-login"class="waves-effect waves-teal btn-flat">I have an account.</a>
+                                   <a id="change-login" class="waves-effect waves-teal btn-flat">I have an account.</a>
                               </div>
                          </div>
                     </form>
@@ -95,7 +101,7 @@
                          <div class="row">
                               <div class="input-field col s12">
                                    <a id="login" class="waves-effect waves-light btn">Login</a>
-                                   <a id="change-register"class="waves-effect waves-teal btn-flat">I don't have an account.</a>
+                                   <a id="change-register" class="waves-effect waves-teal btn-flat">I don't have an account.</a>
                               </div>
                          </div>
                     </form>
@@ -103,27 +109,39 @@
           </div>
 
      </div>
+     <nav id="navbar">
+          <div class="nav-wrapper">
+               <a href="#" class="genesis brand-logo center">GENESIS</a>
+               <ul id="nav" class="left">
+                    <li><a id="run-button" class="genesis waves-effect waves-light"><i class="material-icons right">play_arrow</i>RUN</a></li>
+                    <li><a class="genesis waves-effect waves-light"><i class="material-icons right">create</i>NEW</a></li>
+                    <li><a id="terminal-button" class="genesis waves-effect waves-light"><i class="material-icons right">keyboard</i>TERMINAL</a></li>
 
-     <div class="terminal-hide" id="container">
-          <nav id="navbar">
-               <div class="nav-wrapper">
-                    <a href="#" class="genesis brand-logo center">GENESIS</a>
-                    <ul id="nav-mobile" class="left hide-on-med-and-down">
-                         <li><a id="run-button" class="genesis waves-effect waves-light"><i class="material-icons right">play_arrow</i>RUN</a></li>
-                         <li><a class="genesis waves-effect waves-light"><i class="material-icons right">create</i>NEW</a></li>
-                         <li><a id="terminal-button" class="genesis waves-effect waves-light"><i class="material-icons right">keyboard</i>TERMINAL</a></li>
+               </ul>
+               <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a class="genesis" href="#share"><i class="material-icons right">share</i>SHARE</a></li>
 
-                    </ul>
-                    <ul id="nav-mobile" class="right hide-on-med-and-down">
-                         <li><a class="genesis" href="#share"><i class="material-icons right">share</i>SHARE</a></li>
+               </ul>
+          </div>
+     </nav>
+     <div class="directory-show" id="parent">
+          <div id="directory">
+               <ul class="file-tree">
+                    <li><a href="#">Untitled Workspace</a>
+                         <ul id="initial_workspace">
 
-                    </ul>
-               </div>
-          </nav>
-          <div id="editor"></div>
-          <div class="mousetrap" spellcheck="false" id="terminal"></div>
+                         </ul>
+                    </li>
+               </ul>
+          </div>
+          <div class="terminal-hide" id="container">
+
+               <div id="editor"></div>
+               <div class="mousetrap" spellcheck="false" id="terminal"></div>
+          </div>
      </div>
 
+     <script src="./plugins/file-explore/file-explore.js"></script>
      <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.8/ace.js" type="text/javascript" charset="utf-8"></script>
      <script src="./js/editor.js" type="text/javascript" charset="utf-8"></script>
      <!--script src="./js/terminal.js"></script-->

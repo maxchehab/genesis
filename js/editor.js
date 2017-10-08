@@ -6,6 +6,9 @@ $(document).ready(function() {
                loginCallback();
           }
      });
+
+     $(".file-tree").filetree();
+
 });
 
 var lCallback = null;
@@ -15,7 +18,9 @@ var editor = ace.edit("editor");
 editor.setTheme("ace/theme/monokai");
 editor.getSession().setMode("ace/mode/c_cpp");
 editor.setFontSize(16);
-editor.setOptions({fontFamily: "'Source Code Pro', monospace"});
+editor.setOptions({
+     fontFamily: "'Source Code Pro', monospace"
+});
 editor.commands.addCommand({
      name: "terminal",
      bindKey: {
@@ -43,6 +48,34 @@ $.ajax({
           }
      }
 });
+
+setInterval(function() {
+     $.ajax({
+          url: './php/api/directory.php',
+          type: 'POST',
+          success: function(data) {
+               console.log(data);
+               data = JSON.parse(data);
+               if (data.success) {
+                    createDirectory(data.directory, $("#initial_workspace"), "-");
+                    console.log(directories);
+                    console.log(tempDirectories);
+                    for(var i = 0; i < directories.length; i++){
+                         if(tempDirectories.indexOf(directories[i]) == -1){
+                              console.log("Deleting: " + directories[i]);
+                              $("#" + directories[i]).parent().remove();
+                         }
+                    }
+                    directories = tempDirectories;
+                    tempDirectories = [];
+               } else {
+                    alert("There was a problem loading your workspace. Please try again later.")
+               }
+          }
+     });
+}, 200);
+
+
 
 $("#change-register").click(function() {
      $("#login-modal").addClass("register").removeClass("login");
@@ -118,7 +151,6 @@ $("#login").click(function() {
 
 $("#register").click(function() {
      var valid = true;
-
      var username = $("#register-username").val();
      var email = $("#register-email").val().trim();
      var password = $("#register-password").val();
@@ -127,7 +159,7 @@ $("#register").click(function() {
           $("#register-username-label").attr("data-error", "Username cannot contain any white spaces.");
           $("#register-username").addClass("invalid");
           valid = false;
-     }
+     } 
 
      if (username.length == 0) {
           $("#register-username-label").attr("data-error", "Username cannot be empty.");
@@ -157,7 +189,7 @@ $("#register").click(function() {
                     password: password,
                     workspaceID: readCookie('genesis_workspaceID')
                },
-               success: function(data) {
+               success: function(data) { 
                     console.log(data);
                     data = JSON.parse(data);
                     if (data.success) {
@@ -183,13 +215,14 @@ $("#register").click(function() {
      }
 });
 var delayTimer;
+
 function save() {
      clearTimeout(delayTimer);
      delayTimer = setTimeout(function() {
           $.ajax({
                url: './php/api/save.php',
                type: 'POST',
-               data: {
+               data: { 
                     data: editor.getSession().getValue()
                },
                success: function(data) {
@@ -227,6 +260,45 @@ function toggleTerminal() {
      window.dispatchEvent(new Event('resize'));
 }
 
+var directories = [];
+var tempDirectories = [];
+
+function createDirectory(directory, root, path){
+     $(root).children(".file").remove();
+     if (directory.length > 0) {
+          for (var i = 0; i < directory.length; i++) {
+               var tempFile = path + "-" + directory[i];
+               if(directories.indexOf(tempFile) == -1){
+                    directories.push(tempFile);
+               }
+               $(root).append("<li id=\"" + tempFile +  "\" class=\"file closed open\"> <a href=\"#!\">" + directory[i] + "</a> </li>");
+               tempDirectories.push(tempFile);
+
+          }
+     } else {
+          for (var property in directory) {
+               if (directory.hasOwnProperty(property)) {
+                    if(directory[property].constructor !== String){
+                         var tempPath = path + "-" + property;
+                         if(directories.indexOf(tempPath) == -1){
+                              directories.push(tempPath);
+                              $(root).append("<li class=\"folder-root open\"><a href=\"#\">" + property + "</a><ul id=\"" + tempPath + "\"></ul></li>");
+                         }
+                         tempDirectories.push(tempPath);
+                         createDirectory(directory[property], $("#" + tempPath), tempPath);
+                    }else{
+                         var tempFile = path + "-" + directory[property];
+                         if(directories.indexOf(tempFile) == -1){
+                              directories.push(tempFile);
+                         }
+                         $(root).append("<li id=\"" + tempFile +  "\" class=\"file closed open\"> <a href=\"#!\">" + directory[property] + "</a> </li>");
+                         tempDirectories.push(tempFile);
+                    }
+               }
+          }
+     }
+}
+
 function login(callback) {
      if (readCookie("genesis_session") != null && readCookie("genesis_user") != null) {
           callback();
@@ -242,4 +314,9 @@ function loginCallback() {
      } else {
           lCallback = null;
      }
+}
+
+function remove(id) {
+    var elem = document.getElementById(id);
+    return elem.parentNode.removeChild(elem);
 }
