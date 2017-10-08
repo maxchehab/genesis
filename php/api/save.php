@@ -6,6 +6,11 @@
      $response["errors"] = array();
 
      $workspaceID = $_COOKIE["genesis_workspaceID"];
+     $file = $_POST["file"];
+     if($file == 'default'){
+          $file = '/main.cpp';
+     }
+
      $data = $_POST["data"];
 
      $link = mysqli_connect("localhost", "genesis", "genesis", "genesis");
@@ -28,7 +33,7 @@
      $workspace_userID =  mysqli_fetch_array($results)["userID"];
 
      if($workspace_userID == $userID || $workspace_userID == ''){
-          file_put_contents("../../docker/volumes/" . $workspaceID . "/main.cpp", $data);
+          file_put_contents("../../docker/volumes/" . $workspaceID . $file, $data);
           $response["success"] = true;
      }else{
           error("You do not have authorization to access this file.", $response);

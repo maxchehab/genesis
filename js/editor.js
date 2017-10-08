@@ -15,6 +15,9 @@ var lCallback = null;
 var terminalConnected = false;
 
 var editor = ace.edit("editor");
+
+var currentFile = 'default';
+
 editor.setTheme("ace/theme/monokai");
 editor.getSession().setMode("ace/mode/c_cpp");
 editor.setFontSize(16);
@@ -35,19 +38,26 @@ editor.getSession().on('change', function() {
      save();
 });
 
-$.ajax({
-     url: './php/api/open.php',
-     type: 'POST',
-     success: function(data) {
-          console.log(data);
-          data = JSON.parse(data);
-          if (data.success) {
-               editor.setValue(data.file, -1);
-          } else {
-               alert("There was a problem loading your workspace. Please try again later.")
+function openFile(fileName) {
+     $.ajax({
+          url: './php/api/open.php',
+          type: 'POST',
+          data: {
+               file: fileName
+          },
+          success: function(data) {
+               console.log(data);
+               data = JSON.parse(data);
+               if (data.success) {
+                    editor.setValue(data.file, -1);
+                    currentFile = fileName;
+               } else {
+                    alert("There was a problem loading your workspace. Please try again later.")
+               }
           }
-     }
-});
+     });
+}
+openFile("default");
 
 setInterval(function() {
      $.ajax({
@@ -57,17 +67,24 @@ setInterval(function() {
                console.log(data);
                data = JSON.parse(data);
                if (data.success) {
-                    createDirectory(data.directory, $("#initial_workspace"), "-");
+                    createDirectory(data.directory, $("#initial_workspace"), "");
                     console.log(directories);
                     console.log(tempDirectories);
-                    for(var i = 0; i < directories.length; i++){
-                         if(tempDirectories.indexOf(directories[i]) == -1){
+                    for (var i = 0; i < directories.length; i++) {
+                         if (tempDirectories.indexOf(directories[i]) == -1) {
                               console.log("Deleting: " + directories[i]);
-                              $("#" + directories[i]).parent().remove();
+                              $(document.getElementById(directories[i])).parent().remove();
                          }
                     }
                     directories = tempDirectories;
                     tempDirectories = [];
+
+                    $(".file").click(function() {
+                         var path = $(this).attr('id');
+                         if(currentFile != path){
+                              openFile(path);
+                         }
+                    });
                } else {
                     alert("There was a problem loading your workspace. Please try again later.")
                }
@@ -222,7 +239,8 @@ function save() {
           $.ajax({
                url: './php/api/save.php',
                type: 'POST',
-               data: { 
+               data: {
+                    file: currentFile,
                     data: editor.getSession().getValue()
                },
                success: function(data) {
@@ -263,35 +281,35 @@ function toggleTerminal() {
 var directories = [];
 var tempDirectories = [];
 
-function createDirectory(directory, root, path){
+function createDirectory(directory, root, path) {
      $(root).children(".file").remove();
      if (directory.length > 0) {
           for (var i = 0; i < directory.length; i++) {
-               var tempFile = path + "-" + directory[i];
-               if(directories.indexOf(tempFile) == -1){
+               var tempFile = path + "/" + directory[i];
+               if (directories.indexOf(tempFile) == -1) {
                     directories.push(tempFile);
                }
-               $(root).append("<li id=\"" + tempFile +  "\" class=\"file closed open\"> <a href=\"#!\">" + directory[i] + "</a> </li>");
+               $(root).append("<li id=\"" + tempFile + "\" class=\"file closed open\"> <a href=\"#!\">" + directory[i] + "</a> </li>");
                tempDirectories.push(tempFile);
 
           }
      } else {
           for (var property in directory) {
                if (directory.hasOwnProperty(property)) {
-                    if(directory[property].constructor !== String){
-                         var tempPath = path + "-" + property;
-                         if(directories.indexOf(tempPath) == -1){
+                    if (directory[property].constructor !== String) {
+                         var tempPath = path + "/" + property;
+                         if (directories.indexOf(tempPath) == -1) {
                               directories.push(tempPath);
-                              $(root).append("<li class=\"folder-root open\"><a href=\"#\">" + property + "</a><ul id=\"" + tempPath + "\"></ul></li>");
+                              $(root).append("<li class=\"folder-root closed\"><a href=\"#\">" + property + "</a><ul id=\"" + tempPath + "\"></ul></li>");
                          }
                          tempDirectories.push(tempPath);
-                         createDirectory(directory[property], $("#" + tempPath), tempPath);
-                    }else{
-                         var tempFile = path + "-" + directory[property];
-                         if(directories.indexOf(tempFile) == -1){
+                         createDirectory(directory[property], document.getElementById(tempPath), tempPath);
+                    } else {
+                         var tempFile = path + "/" + directory[property];
+                         if (directories.indexOf(tempFile) == -1) {
                               directories.push(tempFile);
                          }
-                         $(root).append("<li id=\"" + tempFile +  "\" class=\"file closed open\"> <a href=\"#!\">" + directory[property] + "</a> </li>");
+                         $(root).append("<li id=\"" + tempFile + "\" class=\"file closed open\"> <a href=\"#!\">" + directory[property] + "</a> </li>");
                          tempDirectories.push(tempFile);
                     }
                }
@@ -317,6 +335,6 @@ function loginCallback() {
 }
 
 function remove(id) {
-    var elem = document.getElementById(id);
-    return elem.parentNode.removeChild(elem);
+     var elem = document.getElementById(id);
+     return elem.parentNode.removeChild(elem);
 }
