@@ -45,6 +45,7 @@
           <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
           <link href="./plugins/file-explore/file-explore.css" rel="stylesheet" type="text/css">
           <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+          <link rel="stylesheet" href="./plugins/contextmenu/contextmenu.css">
 
 
           <link href="./css/editor.css" rel="stylesheet">
@@ -127,7 +128,7 @@
      <div class="directory-show" id="parent">
           <div id="directory">
                <ul class="file-tree">
-                    <li><a href="#">Untitled Workspace</a>
+                    <li class="context-file" data-path="/" ><a  class="context-file" data-path="/" href="#">Untitled Workspace</a>
                          <ul id="initial_workspace">
 
                          </ul>
@@ -141,10 +142,27 @@
           </div>
      </div>
 
+     <div id="rc-context-menu">
+
+          <div class="menu-item" data-rc-launch="download">
+               <i class="material-icons">file_download</i>
+               <div class="ripple">
+                    Download
+               </div>
+          </div>
+          <div class="separator"></div>
+          <div class="menu-item" data-rc-launch="delete">
+               <i  class="material-icons red-text">delete_forever</i>
+               <div class="ripple">
+                    Delete
+               </div>
+          </div>
+     </div>
+
      <script src="./plugins/file-explore/file-explore.js"></script>
      <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.8/ace.js" type="text/javascript" charset="utf-8"></script>
      <script src="./js/editor.js" type="text/javascript" charset="utf-8"></script>
-     <!--script src="./js/terminal.js"></script-->
+     <script src "./plugins/contextmenu/contextmenu.js"></script>
 </body>
 
 </html>

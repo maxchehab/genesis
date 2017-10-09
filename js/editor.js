@@ -68,11 +68,8 @@ setInterval(function() {
                data = JSON.parse(data);
                if (data.success) {
                     createDirectory(data.directory, $("#initial_workspace"), "");
-                    console.log(directories);
-                    console.log(tempDirectories);
                     for (var i = 0; i < directories.length; i++) {
                          if (tempDirectories.indexOf(directories[i]) == -1) {
-                              console.log("Deleting: " + directories[i]);
                               $(document.getElementById(directories[i])).parent().remove();
                          }
                     }
@@ -81,7 +78,7 @@ setInterval(function() {
 
                     $(".file").click(function() {
                          var path = $(this).attr('id');
-                         if(currentFile != path){
+                         if (currentFile != path) {
                               openFile(path);
                          }
                     });
@@ -206,7 +203,7 @@ $("#register").click(function() {
                     password: password,
                     workspaceID: readCookie('genesis_workspaceID')
                },
-               success: function(data) { 
+               success: function(data) {
                     console.log(data);
                     data = JSON.parse(data);
                     if (data.success) {
@@ -271,6 +268,57 @@ function toggleTerminal() {
           }
 
      } else {
+          $('#rc-context-menu').addClass('hidden');
+
+          $(document).bind("contextmenu", function(event) {
+
+               // Avoid the real one
+               event.preventDefault();
+
+               // Show contextmenu
+               $("#rc-context-menu").finish().toggleClass('hidden').
+
+               // In the right position (the mouse)
+               css({
+                    top: event.pageY + "px",
+                    left: event.pageX + "px"
+               });
+          });
+
+
+          // If the document is clicked somewhere
+          $(document).bind("mousedown", function(e) {
+
+               // If the clicked element is not the menu
+               if (!$(e.target).parents("#rc-context-menu").length > 0) {
+
+                    // Hide it
+                    $("#rc-context-menu").addClass('hidden');
+               }
+          });
+
+
+          // If the menu element is clicked
+          $("#rc-context-menu div").click(function() {
+
+               // This is the triggered action name
+               switch ($(this).attr("data-rc-launch")) {
+
+                    // A case for each action. Your actions here
+                    case "first":
+                         alert("first");
+                         break;
+                    case "second":
+                         alert("second");
+                         break;
+                    case "third":
+                         alert("third");
+                         break;
+               }
+
+               // Hide it AFTER the action was triggered
+               $("#rc-context-menu").addClass('hidden');
+          });
           $("#container").removeClass("terminal-show");
           $("#container").addClass("terminal-hide");
      }
@@ -289,7 +337,7 @@ function createDirectory(directory, root, path) {
                if (directories.indexOf(tempFile) == -1) {
                     directories.push(tempFile);
                }
-               $(root).append("<li id=\"" + tempFile + "\" class=\"file closed open\"> <a href=\"#!\">" + directory[i] + "</a> </li>");
+               $(root).append("<li data-path=\"" + tempFile + "\" id=\"" + tempFile + "\" class=\"file closed open context-file\"> <a data-path=\"" + tempFile + "\" class=\"context-file\" href=\"#!\">" + directory[i] + "</a> </li>");
                tempDirectories.push(tempFile);
 
           }
@@ -300,7 +348,7 @@ function createDirectory(directory, root, path) {
                          var tempPath = path + "/" + property;
                          if (directories.indexOf(tempPath) == -1) {
                               directories.push(tempPath);
-                              $(root).append("<li class=\"folder-root closed\"><a href=\"#\">" + property + "</a><ul id=\"" + tempPath + "\"></ul></li>");
+                              $(root).append("<li data-path=\"" + tempPath + "\" class=\"folder-root closed context-file\"><a class=\"context-file\" href=\"#\" data-path=\"" + tempPath + "\" >" + property + "</a><ul id=\"" + tempPath + "\"></ul></li>");
                          }
                          tempDirectories.push(tempPath);
                          createDirectory(directory[property], document.getElementById(tempPath), tempPath);
@@ -309,7 +357,7 @@ function createDirectory(directory, root, path) {
                          if (directories.indexOf(tempFile) == -1) {
                               directories.push(tempFile);
                          }
-                         $(root).append("<li id=\"" + tempFile + "\" class=\"file closed open\"> <a href=\"#!\">" + directory[property] + "</a> </li>");
+                         $(root).append("<li data-path=\"" + tempFile + "\" id=\"" + tempFile + "\" class=\"file closed open context-file\"> <a data-path=\"" + tempFile + "\" class=\"context-file\" href=\"#!\">" + directory[property] + "</a> </li>");
                          tempDirectories.push(tempFile);
                     }
                }
@@ -338,3 +386,67 @@ function remove(id) {
      var elem = document.getElementById(id);
      return elem.parentNode.removeChild(elem);
 }
+
+function deletePath(path){
+     $.ajax({
+          url: './php/api/delete.php',
+          type: 'POST',
+          data: {
+               path: path,
+          },
+          success: function(data) {
+               console.log(data);
+               data = JSON.parse(data);
+               if (!data.success) {
+                    alert(data.errors.join('\n'));
+               }
+          }
+     });
+}
+
+function downloadPath(path){
+     $("body").append('<iframe style="display:none;" src="./php/api/download.php?path=' + path + '"></iframe>');
+}
+
+$('#rc-context-menu').addClass('hidden');
+
+var contextElement = null;
+$(document).bind("contextmenu", function(event) {
+     if ($(event.target).hasClass("context-file")) {
+          contextElement = event.target;
+          console.log(contextElement);
+          event.preventDefault();
+          $("#rc-context-menu").finish().toggleClass('hidden').
+
+          css({
+               top: event.pageY + "px",
+               left: event.pageX + "px"
+          });
+     }
+});
+
+$(document).bind("mousedown", function(e) {
+     if (!$(e.target).parents("#rc-context-menu").length > 0) {
+          $("#rc-context-menu").addClass('hidden');
+          contextElement = null;
+     }
+});
+
+
+// If the menu element is clicked
+$("#rc-context-menu div").click(function() {
+
+     // This is the triggered action name
+     switch ($(this).attr("data-rc-launch")) {
+          // A case for each action. Your actions here
+          case "download":
+               downloadPath( $(contextElement).attr("data-path"));
+               break;
+          case "delete":
+               deletePath( $(contextElement).attr("data-path"))
+               break;
+     }
+
+     // Hide it AFTER the action was triggered
+     $("#rc-context-menu").addClass('hidden');
+});

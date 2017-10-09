@@ -1,0 +1,7 @@
+[Unit]
+Description=Websocket service that manages Docker containers.
+
+[Service]
+ExecStart=/bin/bash -c "sudo node /home/maxchehab/www/genesis/docker/server.js"
+[Install]
+WantedBy=multi-user.target

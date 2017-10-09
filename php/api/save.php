@@ -29,12 +29,20 @@
                }
           }
      }
+     
      $results = mysqli_query($link,"SELECT * FROM `workspaces` WHERE `workspaceID`='$workspaceID'");
      $workspace_userID =  mysqli_fetch_array($results)["userID"];
 
      if($workspace_userID == $userID || $workspace_userID == ''){
-          file_put_contents("../../docker/volumes/" . $workspaceID . $file, $data);
-          $response["success"] = true;
+          $authPath = realpath("../../docker/volumes/");
+          $path = "../../docker/volumes/" . $workspaceID . $file;
+          if(substr(realpath($path), 0, strlen($authPath)) == $authPath){
+               file_put_contents($path, $data);
+               $response["success"] = true;
+          }else{
+               error("You do not have authorization to access this file.", $response);
+          }
+
      }else{
           error("You do not have authorization to access this file.", $response);
      }
