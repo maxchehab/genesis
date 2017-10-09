@@ -31,6 +31,7 @@
 
           mkdir("./docker/volumes/" . $workspaceID);
           copy("./docker/templates/main.cpp","./docker/volumes/" . $workspaceID . "/main.cpp");
+          //echo shell_exec ("sudo chown -R genesis:genesis ./docker/volumes/" . $workspaceID);
 
           $query = mysqli_query($link,"INSERT INTO `workspaces` (`workspaceID`, `userID`, `name`)
                                    VALUES ('$workspaceID', '$userID', 'Untitled Workspace')");

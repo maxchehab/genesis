@@ -22,10 +22,12 @@
                }
           }
      }
+
      $results = mysqli_query($link,"SELECT * FROM `workspaces` WHERE `workspaceID`='$workspaceID'");
      $workspace_result = mysqli_fetch_array($results);
      $workspace_userID =  $workspace_result["userID"];
      $workspace_name = $workspace_result["name"];
+     
      if($workspace_userID == $userID || $workspace_userID == ''){
           $path = "../../docker/volumes/" . $workspaceID . $path;
           $authPath = realpath("../../docker/volumes/");

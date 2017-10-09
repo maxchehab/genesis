@@ -16,7 +16,7 @@ server.on('connection', function(socket, request) {
      socket = websocket(socket);
 
      var volumes = {};
-     volumes['/home/maxchehab/www/genesis/docker/volumes/' + cookies.genesis_workspaceID] = '/genesis';
+     volumes['/home/maxchehab/www/genesis/docker/volumes/' + cookies.genesis_workspaceID] = '/home/genesis';
 
      socket.pipe(docker('gpp', {
           volumes
