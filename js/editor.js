@@ -13,10 +13,12 @@ $(document).ready(function() {
 
 var lCallback = null;
 var terminalConnected = false;
+var currentFile = null;
 
 var editor = ace.edit("editor");
 
 var currentFile = 'default';
+var deletePathTemp = null;
 
 editor.setTheme("ace/theme/monokai");
 editor.getSession().setMode("ace/mode/c_cpp");
@@ -46,11 +48,13 @@ function openFile(fileName) {
                file: fileName
           },
           success: function(data) {
-               console.log(data);
+               console.log("open: " + data);
                data = JSON.parse(data);
                if (data.success) {
                     editor.setValue(data.file, -1);
-                    currentFile = fileName;
+
+                    currentFile = data.path;
+                    editor.setReadOnly(false);
                } else {
                     alert("There was a problem loading your workspace. Please try again later.")
                }
@@ -64,7 +68,7 @@ setInterval(function() {
           url: './php/api/directory.php',
           type: 'POST',
           success: function(data) {
-               console.log(data);
+               console.log("directory: " + data);
                data = JSON.parse(data);
                if (data.success) {
                     createDirectory(data.directory, $("#initial_workspace"), "");
@@ -76,9 +80,15 @@ setInterval(function() {
                     directories = tempDirectories;
                     tempDirectories = [];
 
+                    if(directories.indexOf(currentFile) == -1 && currentFile != null){
+                         editor.setReadOnly(true);
+                         editor.setValue(currentFile + " is not available. Please select a different file to edit.");
+                         currentFile = null;
+                    }
+
                     $(".file").click(function() {
-                         var path = $(this).attr('id');
-                         if (currentFile != path) {
+                         var path = $(this).attr('data-path');
+                         if (currentFile != path || directories.indexOf(currentFile) != -1) {
                               openFile(path);
                          }
                     });
@@ -105,6 +115,15 @@ $("#change-login").click(function() {
 
 $("#terminal-button").click(function() {
      login(toggleTerminal);
+})
+
+$(".cancel-delete-action").click(function(){
+     deletePathTemp = null;
+})
+
+$(".delete-action").click(function(){
+     deletePath(deletePathTemp);
+     deletePathTemp = null;
 })
 
 Mousetrap.bind('ctrl+alt+t', function(e) {
@@ -140,7 +159,7 @@ $("#login").click(function() {
                     workspaceID: readCookie('genesis_workspaceID')
                },
                success: function(data) {
-                    console.log(data);
+                    console.log("login: " + data);
                     data = JSON.parse(data);
                     if (data.success) {
                          createCookie("genesis_session", data.cookie, 1);
@@ -204,7 +223,7 @@ $("#register").click(function() {
                     workspaceID: readCookie('genesis_workspaceID')
                },
                success: function(data) {
-                    console.log(data);
+                    console.log("register: " + data);
                     data = JSON.parse(data);
                     if (data.success) {
                          createCookie("genesis_session", data.cookie, 1);
@@ -233,21 +252,26 @@ var delayTimer;
 function save() {
      clearTimeout(delayTimer);
      delayTimer = setTimeout(function() {
-          $.ajax({
-               url: './php/api/save.php',
-               type: 'POST',
-               data: {
-                    file: currentFile,
-                    data: editor.getSession().getValue()
-               },
-               success: function(data) {
-                    console.log(data);
-                    data = JSON.parse(data);
-                    if (!data.success) {
-                         alert(data.errors.join('\n'));
+
+
+          if(directories.indexOf(currentFile) != -1){
+               $.ajax({
+                    url: './php/api/save.php',
+                    type: 'POST',
+                    data: {
+                         file: currentFile,
+                         data: editor.getSession().getValue()
+                    },
+                    success: function(data) {
+                         console.log("save: " + data);
+                         data = JSON.parse(data);
+                         if (!data.success) {
+                              alert(data.errors.join('\n'));
+                         }
                     }
-               }
-          });
+               });
+          }
+
      }, 200);
 }
 
@@ -268,57 +292,7 @@ function toggleTerminal() {
           }
 
      } else {
-          $('#rc-context-menu').addClass('hidden');
 
-          $(document).bind("contextmenu", function(event) {
-
-               // Avoid the real one
-               event.preventDefault();
-
-               // Show contextmenu
-               $("#rc-context-menu").finish().toggleClass('hidden').
-
-               // In the right position (the mouse)
-               css({
-                    top: event.pageY + "px",
-                    left: event.pageX + "px"
-               });
-          });
-
-
-          // If the document is clicked somewhere
-          $(document).bind("mousedown", function(e) {
-
-               // If the clicked element is not the menu
-               if (!$(e.target).parents("#rc-context-menu").length > 0) {
-
-                    // Hide it
-                    $("#rc-context-menu").addClass('hidden');
-               }
-          });
-
-
-          // If the menu element is clicked
-          $("#rc-context-menu div").click(function() {
-
-               // This is the triggered action name
-               switch ($(this).attr("data-rc-launch")) {
-
-                    // A case for each action. Your actions here
-                    case "first":
-                         alert("first");
-                         break;
-                    case "second":
-                         alert("second");
-                         break;
-                    case "third":
-                         alert("third");
-                         break;
-               }
-
-               // Hide it AFTER the action was triggered
-               $("#rc-context-menu").addClass('hidden');
-          });
           $("#container").removeClass("terminal-show");
           $("#container").addClass("terminal-hide");
      }
@@ -337,7 +311,7 @@ function createDirectory(directory, root, path) {
                if (directories.indexOf(tempFile) == -1) {
                     directories.push(tempFile);
                }
-               $(root).append("<li data-path=\"" + tempFile + "\" id=\"" + tempFile + "\" class=\"file closed open context-file\"> <a data-path=\"" + tempFile + "\" class=\"context-file\" href=\"#!\">" + directory[i] + "</a> </li>");
+               $(root).append("<li data-path=\"" + tempFile + "\" id=\"" + tempFile + "\" class=\"file closed open context-file\"> <a data-path=\"" + tempFile + "\" class=\"file context-file\" href=\"#!\">" + directory[i] + "</a> </li>");
                tempDirectories.push(tempFile);
 
           }
@@ -357,7 +331,7 @@ function createDirectory(directory, root, path) {
                          if (directories.indexOf(tempFile) == -1) {
                               directories.push(tempFile);
                          }
-                         $(root).append("<li data-path=\"" + tempFile + "\" id=\"" + tempFile + "\" class=\"file closed open context-file\"> <a data-path=\"" + tempFile + "\" class=\"context-file\" href=\"#!\">" + directory[property] + "</a> </li>");
+                         $(root).append("<li data-path=\"" + tempFile + "\" id=\"" + tempFile + "\" class=\"file closed open context-file\"> <a data-path=\"" + tempFile + "\" class=\"file context-file\" href=\"#!\">" + directory[property] + "</a> </li>");
                          tempDirectories.push(tempFile);
                     }
                }
@@ -395,7 +369,7 @@ function deletePath(path){
                path: path,
           },
           success: function(data) {
-               console.log(data);
+               console.log("delete: " + data);
                data = JSON.parse(data);
                if (!data.success) {
                     alert(data.errors.join('\n'));
@@ -416,6 +390,19 @@ $(document).bind("contextmenu", function(event) {
           contextElement = event.target;
           console.log(contextElement);
           event.preventDefault();
+          var path = $(event.target).attr("data-path")
+          if(path == "/"){
+               $("#rc-context-menu").addClass("root");
+          }else{
+               $("#rc-context-menu").removeClass("root");
+          }
+          if(path.substring(path.length - 1) == "/"){
+               $("#rc-context-menu").addClass("directory");
+               $("#rc-context-menu").removeClass("del-file");
+          }else{
+               $("#rc-context-menu").addClass("del-file");
+               $("#rc-context-menu").removeClass("directory");
+          }
           $("#rc-context-menu").finish().toggleClass('hidden').
 
           css({
@@ -443,8 +430,9 @@ $("#rc-context-menu div").click(function() {
                downloadPath( $(contextElement).attr("data-path"));
                break;
           case "delete":
-               deletePath( $(contextElement).attr("data-path"))
+               deletePathTemp = $(contextElement).attr("data-path");
                break;
+
      }
 
      // Hide it AFTER the action was triggered

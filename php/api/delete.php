@@ -6,12 +6,8 @@
      $response["errors"] = array();
 
      $workspaceID = $_COOKIE["genesis_workspaceID"];
-     $file = $_POST["file"];
-     if($file == 'default'){
-          $file = '/main.cpp';
-     }
 
-     $data = $_POST["data"];
+     $path = $_POST["path"];
 
      $link = mysqli_connect("localhost", "genesis", "genesis", "genesis");
 
@@ -33,21 +29,18 @@
      $results = mysqli_query($link,"SELECT * FROM `workspaces` WHERE `workspaceID`='$workspaceID'");
      $workspace_userID =  mysqli_fetch_array($results)["userID"];
 
-
      if($workspace_userID == $userID || $workspace_userID == ''){
-
           $authPath = realpath("../../docker/volumes/");
-          $path = realpath("../../docker/volumes/" . $workspaceID . $file);
-          if(!$path){
-               error("File does not exist.", $response);
-          }else if(substr($path, 0, strlen($authPath)) == $authPath){
-               if(file_exists($path)){
-                    file_put_contents($path, $data);
-                    $response["success"] = true;
+          $path = "../../docker/volumes/" . $workspaceID . $path;
+          if(substr(realpath($path), 0, strlen($authPath)) == $authPath){
+               //delete shit
+               if(is_dir($path)){
+                    rmdir_recursive($path);
                }else{
-                    error("File does not exist.", $response);
+                    unlink($path);
                }
 
+               $response["success"] = true;
           }else{
                error("You do not have authorization to access this file.", $response);
           }
@@ -60,9 +53,18 @@
 
      echo json_encode($response);
 
-     function error($error, &$response){
+     function error($error, $response){
           $response["success"] = false;
           array_push($response["errors"], $error);
           return $response;
+     }
+
+     function rmdir_recursive($dir) {
+          foreach(scandir($dir) as $file) {
+               if ('.' === $file || '..' === $file) continue;
+               if (is_dir("$dir/$file")) rmdir_recursive("$dir/$file");
+               else unlink("$dir/$file");
+          }
+          rmdir($dir);
      }
 ?>

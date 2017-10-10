@@ -1,3 +1,20 @@
+.root .menu-item-delete, .root .menu-item-delete-directory, .root .menu-item-delete-file{
+     display:none !important;
+}
+
+.modal-small{
+     max-height: 240px;
+     width: 600px;
+}
+
+.directory .menu-item-delete-file{
+     display:none;
+}
+
+.del-file .menu-item-delete-directory{
+     display:none;
+}
+
 .terminal-show #editor {
      position: absolute;
      top: 0;
