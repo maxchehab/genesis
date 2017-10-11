@@ -7,11 +7,7 @@
      width: 600px;
 }
 
-.directory .menu-item-delete-file{
-     display:none;
-}
-
-.del-file .menu-item-delete-directory{
+.directory .menu-item-delete-file, .del-file #menu-item-directory, .del-file .menu-item-delete-directory, .del-file #menu-item-file{
      display:none;
 }
 

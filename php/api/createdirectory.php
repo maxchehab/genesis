@@ -32,17 +32,15 @@
      if($workspace_userID == $userID || $workspace_userID == ''){
           $authPath = realpath("../../docker/volumes/");
           $path = "../../docker/volumes/" . $workspaceID . $path;
-          if(substr(realpath($path), 0, strlen($authPath)) == $authPath){
+          if(substr(realpath(dirname($path)), 0, strlen($authPath)) == $authPath){
                //delete shit
-               if(is_dir($path)){
-                    rmdir_recursive($path);
-                    $response["isFile"] = false;
+               if(!file_exists($path)){
+                    mkdir($path);
+                    $response["success"] = true;
                }else{
-                    unlink($path);
-                    $response["isFile"] = true;
+                    error("This directory exists.", $response);
                }
 
-               $response["success"] = true;
           }else{
                error("You do not have authorization to access this file.", $response);
           }
@@ -55,18 +53,9 @@
 
      echo json_encode($response);
 
-     function error($error, $response){
+     function error($error, &$response){
           $response["success"] = false;
           array_push($response["errors"], $error);
           return $response;
-     }
-
-     function rmdir_recursive($dir) {
-          foreach(scandir($dir) as $file) {
-               if ('.' === $file || '..' === $file) continue;
-               if (is_dir("$dir/$file")) rmdir_recursive("$dir/$file");
-               else unlink("$dir/$file");
-          }
-          rmdir($dir);
      }
 ?>

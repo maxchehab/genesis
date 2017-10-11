@@ -13,8 +13,7 @@ $(document).ready(function() {
 
 var lCallback = null;
 var terminalConnected = false;
-var currentFile = null;
-
+var createPath = null;
 var editor = ace.edit("editor");
 
 var currentFile = 'default';
@@ -23,9 +22,7 @@ var deletePathTemp = null;
 editor.setTheme("ace/theme/monokai");
 editor.getSession().setMode("ace/mode/c_cpp");
 editor.setFontSize(16);
-editor.setOptions({
-     fontFamily: "'Source Code Pro', monospace"
-});
+editor.setOptions({fontFamily: "'Source Code Pro', monospace"});
 editor.commands.addCommand({
      name: "terminal",
      bindKey: {
@@ -71,7 +68,7 @@ setInterval(function() {
                console.log("directory: " + data);
                data = JSON.parse(data);
                if (data.success) {
-                    createDirectory(data.directory, $("#initial_workspace"), "");
+                    createUIDirectory(data.directory, $("#initial_workspace"), "");
                     for (var i = 0; i < directories.length; i++) {
                          if (tempDirectories.indexOf(directories[i]) == -1) {
                               $(document.getElementById(directories[i])).parent().remove();
@@ -80,7 +77,7 @@ setInterval(function() {
                     directories = tempDirectories;
                     tempDirectories = [];
 
-                    if(directories.indexOf(currentFile) == -1 && currentFile != null){
+                    if (directories.indexOf(currentFile) == -1 && currentFile != null) {
                          editor.setReadOnly(true);
                          editor.setValue(currentFile + " is not available. Please select a different file to edit.");
                          currentFile = null;
@@ -88,7 +85,7 @@ setInterval(function() {
 
                     $(".file").click(function() {
                          var path = $(this).attr('data-path');
-                         if (currentFile != path || directories.indexOf(currentFile) != -1) {
+                         if (currentFile != path || (directories.indexOf(currentFile) != -1 && currentFile != path)) {
                               openFile(path);
                          }
                     });
@@ -98,8 +95,6 @@ setInterval(function() {
           }
      });
 }, 200);
-
-
 
 $("#change-register").click(function() {
      $("#login-modal").addClass("register").removeClass("login");
@@ -117,11 +112,18 @@ $("#terminal-button").click(function() {
      login(toggleTerminal);
 })
 
-$(".cancel-delete-action").click(function(){
+$(".cancel-delete-action").click(function() {
      deletePathTemp = null;
 })
 
-$(".delete-action").click(function(){
+$(".create-directory-action").click(function(){
+     createDirectory($("#create-directory-input").val());
+})
+$(".create-file-action").click(function(){
+     createFile($("#create-file-input").val());
+})
+
+$(".delete-action").click(function() {
      deletePath(deletePathTemp);
      deletePathTemp = null;
 })
@@ -192,7 +194,7 @@ $("#register").click(function() {
           $("#register-username-label").attr("data-error", "Username cannot contain any white spaces.");
           $("#register-username").addClass("invalid");
           valid = false;
-     } 
+     }
 
      if (username.length == 0) {
           $("#register-username-label").attr("data-error", "Username cannot be empty.");
@@ -253,8 +255,7 @@ function save() {
      clearTimeout(delayTimer);
      delayTimer = setTimeout(function() {
 
-
-          if(directories.indexOf(currentFile) != -1){
+          if (directories.indexOf(currentFile) != -1) {
                $.ajax({
                     url: './php/api/save.php',
                     type: 'POST',
@@ -303,7 +304,7 @@ function toggleTerminal() {
 var directories = [];
 var tempDirectories = [];
 
-function createDirectory(directory, root, path) {
+function createUIDirectory(directory, root, path) {
      $(root).children(".file").remove();
      if (directory.length > 0) {
           for (var i = 0; i < directory.length; i++) {
@@ -322,10 +323,10 @@ function createDirectory(directory, root, path) {
                          var tempPath = path + "/" + property;
                          if (directories.indexOf(tempPath) == -1) {
                               directories.push(tempPath);
-                              $(root).append("<li data-path=\"" + tempPath + "\" class=\"folder-root closed context-file\"><a class=\"context-file\" href=\"#\" data-path=\"" + tempPath + "\" >" + property + "</a><ul id=\"" + tempPath + "\"></ul></li>");
+                              $(root).append("<li data-path=\"" + tempPath + "\" class=\"folder-root folder closed context-file\"><a class=\"context-file folder\" href=\"#\" data-path=\"" + tempPath + "\" >" + property + "</a><ul id=\"" + tempPath + "\"></ul></li>");
                          }
                          tempDirectories.push(tempPath);
-                         createDirectory(directory[property], document.getElementById(tempPath), tempPath);
+                         createUIDirectory(directory[property], document.getElementById(tempPath), tempPath);
                     } else {
                          var tempFile = path + "/" + directory[property];
                          if (directories.indexOf(tempFile) == -1) {
@@ -361,24 +362,31 @@ function remove(id) {
      return elem.parentNode.removeChild(elem);
 }
 
-function deletePath(path){
+function deletePath(path) {
      $.ajax({
           url: './php/api/delete.php',
           type: 'POST',
           data: {
-               path: path,
+               path: path
           },
           success: function(data) {
                console.log("delete: " + data);
                data = JSON.parse(data);
                if (!data.success) {
                     alert(data.errors.join('\n'));
+               } else {
+                    if (data.isFile) {
+                         Materialize.toast('Deleted file ' + path, 4000)
+                    } else {
+                         Materialize.toast('Deleted directory ' + path, 4000)
+
+                    }
                }
           }
      });
 }
 
-function downloadPath(path){
+function downloadPath(path) {
      $("body").append('<iframe style="display:none;" src="./php/api/download.php?path=' + path + '"></iframe>');
 }
 
@@ -388,24 +396,23 @@ var contextElement = null;
 $(document).bind("contextmenu", function(event) {
      if ($(event.target).hasClass("context-file")) {
           contextElement = event.target;
-          console.log(contextElement);
           event.preventDefault();
           var path = $(event.target).attr("data-path")
-          if(path == "/"){
+          if (path == "/") {
                $("#rc-context-menu").addClass("root");
-          }else{
+
+          } else {
                $("#rc-context-menu").removeClass("root");
+
           }
-          if(path.substring(path.length - 1) == "/"){
+          if ($(event.target).hasClass("folder")) {
                $("#rc-context-menu").addClass("directory");
                $("#rc-context-menu").removeClass("del-file");
-          }else{
+          } else {
                $("#rc-context-menu").addClass("del-file");
                $("#rc-context-menu").removeClass("directory");
           }
-          $("#rc-context-menu").finish().toggleClass('hidden').
-
-          css({
+          $("#rc-context-menu").finish().toggleClass('hidden').css({
                top: event.pageY + "px",
                left: event.pageX + "px"
           });
@@ -419,18 +426,34 @@ $(document).bind("mousedown", function(e) {
      }
 });
 
-
 // If the menu element is clicked
 $("#rc-context-menu div").click(function() {
 
      // This is the triggered action name
      switch ($(this).attr("data-rc-launch")) {
-          // A case for each action. Your actions here
+               // A case for each action. Your actions here
           case "download":
-               downloadPath( $(contextElement).attr("data-path"));
+               downloadPath($(contextElement).attr("data-path"));
                break;
           case "delete":
                deletePathTemp = $(contextElement).attr("data-path");
+               break;
+          case "createFile":
+               var path = $(contextElement).attr("data-path");
+               if (path.slice(-1) != "/") {
+                    path += '/';
+               }
+               $("#create-file-input").val(path);
+               $("#create-file-input").focus();
+
+               break;
+          case "createDirectory":
+               var path = $(contextElement).attr("data-path");
+               if (path.slice(-1) != "/") {
+                    path += '/';
+               }
+               $("#create-directory-input").val(path);
+               $("#create-directory-input").focus();
                break;
 
      }
@@ -438,3 +461,40 @@ $("#rc-context-menu div").click(function() {
      // Hide it AFTER the action was triggered
      $("#rc-context-menu").addClass('hidden');
 });
+
+function createFile(path) {
+     $.ajax({
+          url: './php/api/createfile.php',
+          type: 'POST',
+          data: {
+               path: path
+          },
+          success: function(data) {
+               console.log("createfile: " + data);
+               data = JSON.parse(data);
+               if (!data.success) {
+                    alert(data.errors.join('\n'));
+               } else {
+                    Materialize.toast('Created file ' + path, 4000);
+               }
+          }
+     });
+}
+function createDirectory(path) {
+     $.ajax({
+          url: './php/api/createdirectory.php',
+          type: 'POST',
+          data: {
+               path: path
+          },
+          success: function(data) {
+               console.log("createdirectory: " + data);
+               data = JSON.parse(data);
+               if (!data.success) {
+                    alert(data.errors.join('\n'));
+               } else {
+                    Materialize.toast('Created directory ' + path, 4000);
+               }
+          }
+     });
+}

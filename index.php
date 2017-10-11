@@ -118,8 +118,28 @@
                <p>Are you sure you want to delete this file?</p>
           </div>
           <div class="modal-footer">
-                    <a href="#!" class="cancel-delete-action modal-action modal-close waves-effect waves-green btn-flat">Cancel.</a>
-                    <a href="#!" class="delete-action modal-action modal-close waves-effect waves-green btn-flat">Delete.</a>
+               <a href="#!" class="cancel-delete-action modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+               <a href="#!" class="delete-action modal-action modal-close waves-effect waves-green btn-flat">Delete</a>
+          </div>
+     </div>
+     <div id="create-file-modal" class="modal modal-small modal-fixed-footer">
+          <div class="modal-content">
+               <h4>Create File</4>
+               <input id="create-file-input" placeholder="File name" type="text">
+          </div>
+          <div class="modal-footer">
+                    <a href="#!" class="cancel-create-file modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+                    <a href="#!" class="create-file-action modal-action modal-close waves-effect waves-green btn-flat">Create</a>
+          </div>
+     </div>
+     <div id="create-directory-modal" class="modal modal-small modal-fixed-footer">
+          <div class="modal-content">
+               <h4>Create Directory</4>
+               <input id="create-directory-input" placeholder="directory name" type="text">
+          </div>
+          <div class="modal-footer">
+                    <a href="#!" class="cancel-create-directory modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+                    <a href="#!" class="create-directory-action modal-action modal-close waves-effect waves-green btn-flat">Create</a>
           </div>
      </div>
      <div id="delete-directory-modal" class="modal modal-small modal-fixed-footer">
@@ -129,8 +149,8 @@
                <p>All files and directories within this directory will be removed.</p>
           </div>
           <div class="modal-footer">
-               <a href="#!" class="cancel-delete-action modal-action modal-close waves-effect waves-green btn-flat">Cancel.</a>
-               <a href="#!" class="delete-action modal-action modal-close waves-effect waves-green btn-flat">Delete.</a>
+               <a href="#!" class="cancel-delete-action modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+               <a href="#!" class="delete-action modal-action modal-close waves-effect waves-green btn-flat">Delete</a>
 
           </div>
      </div>
@@ -149,7 +169,7 @@
      <div class="directory-show" id="parent">
           <div id="directory">
                <ul class="file-tree">
-                    <li class="context-file" data-path="/"><a class="context-file" data-path="/" href="#">Untitled Workspace</a>
+                    <li class="context-file folder" data-path="/"><a class="folder context-file" data-path="/" href="#">Untitled Workspace</a>
                          <ul id="initial_workspace">
 
                          </ul>
@@ -164,20 +184,20 @@
      </div>
 
      <div class="root" id="rc-context-menu">
-          <div id="menu-item-file" class="menu-item" data-rc-launch="delete">
+          <div id="menu-item-file" class="menu-item" data-rc-launch="createFile">
                <i class="material-icons">insert_drive_file</i>
-               <div class="ripple">
+               <div class="ripple modal-trigger" href="#create-file-modal">
                     Create File
                </div>
           </div>
-          <div id="menu-item-directory" class="menu-item" data-rc-launch="delete">
+          <div id="menu-item-directory" class="menu-item" data-rc-launch="createDirectory">
                <i class="material-icons">create_new_folder</i>
-               <div class="ripple">
+               <div class="ripple modal-trigger" href="#create-directory-modal">
                     Create Directory
                </div>
           </div>
 
-          <div id="menu-item-rename" class="menu-item" data-rc-launch="delete">
+          <div id="menu-item-rename" class="menu-item" data-rc-launch="">
                <i class="material-icons">mode_edit</i>
                <div class="ripple">
                     Rename
