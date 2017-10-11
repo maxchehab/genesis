@@ -7,7 +7,8 @@
 
      $workspaceID = $_COOKIE["genesis_workspaceID"];
 
-     $path = $_POST["path"];
+     $newPath = $_POST["newPath"];
+     $oldPath = $_POST["oldPath"];
 
      $link = mysqli_connect("localhost", "genesis", "genesis", "genesis");
 
@@ -30,26 +31,31 @@
      $workspace_userID =  mysqli_fetch_array($results)["userID"];
 
      if($workspace_userID == $userID || $workspace_userID == ''){
-          $authPath = realpath("../../docker/volumes/" . $workspaceID);
-          $path = "../../docker/volumes/" . $workspaceID . $path;
-          if(substr(realpath(dirname($path)), 0, strlen($authPath)) == $authPath){
-               //delete shit
-               if(!file_exists($path)){
-                    touch($path);
-                    $response["success"] = true;
-               }else{
-                    error("This file exists.", $response);
-               }
 
+          if($oldPath == "/"){
+               mysqli_query($link,"UPDATE `workspaces` SET `name`='$newPath' WHERE `workspaceID`='$workspaceID'");
+               $response["success"] = true;
           }else{
-               error("You do not have authorization to access this file.", $response);
+               $authPath = realpath("../../docker/volumes/" . $workspaceID);
+               $oldPath = realpath("../../docker/volumes/" . $workspaceID . $oldPath);
+               $newPath = dirname($oldPath) . "/" . $newPath;
+               if(!file_exists($newPath)){
+                    touch($newPath);
+                    $newPath = realpath($newPath);
+                    if(substr($oldPath, 0, strlen($authPath)) == $authPath && substr($newPath, 0, strlen($authPath)) == $authPath ){
+                         rename($oldPath, $newPath);
+                         $response["success"] = true;
+                    }else{
+                         unlink($newPath);
+                         error("You do not have authorization to access this file.", $response);
+                    }
+               }else{
+                    error("File exists. If you wish to rename this file please use the command line.", $response);
+               }
           }
-
      }else{
           error("You do not have authorization to access this file.", $response);
      }
-
-
 
      echo json_encode($response);
 

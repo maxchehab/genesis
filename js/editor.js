@@ -15,9 +15,11 @@ var lCallback = null;
 var terminalConnected = false;
 var createPath = null;
 var editor = ace.edit("editor");
+var workspaceName = "Untitled Workspace";
 
 var currentFile = 'default';
 var deletePathTemp = null;
+var renamePath = null;
 
 editor.setTheme("ace/theme/monokai");
 editor.getSession().setMode("ace/mode/c_cpp");
@@ -119,6 +121,7 @@ $(".cancel-delete-action").click(function() {
 $(".create-directory-action").click(function(){
      createDirectory($("#create-directory-input").val());
 })
+
 $(".create-file-action").click(function(){
      createFile($("#create-file-input").val());
 })
@@ -126,6 +129,11 @@ $(".create-file-action").click(function(){
 $(".delete-action").click(function() {
      deletePath(deletePathTemp);
      deletePathTemp = null;
+})
+
+$(".rename-action").click(function() {
+     renameFile(renamePath,$("#rename-input").val() );
+     renamePath = null;
 })
 
 Mousetrap.bind('ctrl+alt+t', function(e) {
@@ -445,7 +453,6 @@ $("#rc-context-menu div").click(function() {
                }
                $("#create-file-input").val(path);
                $("#create-file-input").focus();
-
                break;
           case "createDirectory":
                var path = $(contextElement).attr("data-path");
@@ -455,6 +462,14 @@ $("#rc-context-menu div").click(function() {
                $("#create-directory-input").val(path);
                $("#create-directory-input").focus();
                break;
+          case "rename":
+               renamePath = $(contextElement).attr("data-path");
+               var path = renamePath.split("/").pop();
+               if(path == ''){
+                    $("#rename-input").val(workspaceName);
+               }else{
+                    $("#rename-input").val(path);
+               }
 
      }
 
@@ -494,6 +509,33 @@ function createDirectory(path) {
                     alert(data.errors.join('\n'));
                } else {
                     Materialize.toast('Created directory ' + path, 4000);
+               }
+          }
+     });
+}
+
+function renameFile(oldPath, newPath){
+     $.ajax({
+          url: './php/api/rename.php',
+          type: 'POST',
+          data: {
+               oldPath: oldPath,
+               newPath: newPath
+          },
+          success: function(data) {
+               console.log("createdirectory: " + data);
+               data = JSON.parse(data);
+               if (!data.success) {
+                    alert(data.errors.join('\n'));
+               } else {
+                    if(oldPath == "/"){
+                         $("#workspace-name").text(newPath);
+                         Materialize.toast('Renamed ' + workspaceName + " to " + newPath, 4000);
+                         workspaceName = newPath;
+                    }else{
+                         Materialize.toast('Renamed ' + oldPath + " to " + newPath, 4000);
+                    }
+
                }
           }
      });
