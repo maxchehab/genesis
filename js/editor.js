@@ -15,7 +15,7 @@ var lCallback = null;
 var terminalConnected = false;
 var createPath = null;
 var editor = ace.edit("editor");
-var workspaceName = "Untitled Workspace";
+var workspaceName = $("#workspace-name").text();
 
 var currentFile = 'default';
 var deletePathTemp = null;
@@ -54,6 +54,7 @@ function openFile(fileName) {
 
                     currentFile = data.path;
                     editor.setReadOnly(false);
+                    editor.focus();
                } else {
                     alert("There was a problem loading your workspace. Please try again later.")
                }
@@ -112,6 +113,10 @@ $("#change-login").click(function() {
 
 $("#terminal-button").click(function() {
      login(toggleTerminal);
+})
+
+$("#share-button").click(function() {
+     login(share);
 })
 
 $(".cancel-delete-action").click(function() {
@@ -290,7 +295,6 @@ function isEmail(email) {
 }
 
 function toggleTerminal() {
-
      if ($("#container").hasClass("terminal-hide")) {
           $("#container").addClass("terminal-show");
           $("#container").removeClass("terminal-hide");
@@ -299,14 +303,29 @@ function toggleTerminal() {
                connectTerminal();
                terminalConnected = true;
           }
-
      } else {
-
           $("#container").removeClass("terminal-show");
           $("#container").addClass("terminal-hide");
      }
-
      window.dispatchEvent(new Event('resize'));
+}
+
+function share(){
+     $.ajax({
+          url: './php/api/share.php',
+          type: 'POST',
+          success: function(data) {
+               console.log("share: " + data);
+               data = JSON.parse(data);
+               if (!data.success) {
+                    alert(data.errors.join('\n'));
+               } else {
+                    $("#share-input").val("http://104.236.141.69/genesis/?share=" + data.shareID);
+                    $('#share-modal').modal('open');
+                    $("#share-input").select();
+               }
+          }
+     });
 }
 
 var directories = [];
@@ -360,9 +379,8 @@ function login(callback) {
 function loginCallback() {
      if (readCookie("genesis_session") != null && readCookie("genesis_user") != null && lCallback != null) {
           lCallback();
-     } else {
-          lCallback = null;
      }
+     lCallback = null;
 }
 
 function remove(id) {
@@ -490,7 +508,12 @@ function createFile(path) {
                if (!data.success) {
                     alert(data.errors.join('\n'));
                } else {
-                    Materialize.toast('Created file ' + path, 4000);
+                    var toastAction = $('<button class="btn-flat toast-action">Open</button>').click(function(){
+                         openFile(path);
+                    });
+                    var toastContent = $("<span>Created file " + path + "</span>").add(toastAction);
+
+                    Materialize.toast(toastContent, 4000);
                }
           }
      });

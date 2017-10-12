@@ -11,6 +11,21 @@
      <?php
           require_once('./php/lib/crypto.php');
 
+          function recurse_copy($src,$dst) {
+               $dir = opendir($src);
+               @mkdir($dst);
+               while(false !== ( $file = readdir($dir)) ) {
+                    if (( $file != '.' ) && ( $file != '..' )) {
+                         if ( is_dir($src . '/' . $file) ) {
+                              recurse_copy($src . '/' . $file,$dst . '/' . $file);
+                         } else {
+                              copy($src . '/' . $file,$dst . '/' . $file);
+                         }
+                    }
+               }
+               closedir($dir);
+          }
+
           $link = mysqli_connect("localhost", "genesis", "genesis", "genesis");
           $userID = '';
 
@@ -27,14 +42,31 @@
                }
           }
 
+          $copyPath = "./docker/templates/cpp";
+          $workspaceName = 'Untitled Workspace';
+
+          if(isset($_GET["share"])){
+               $shareID = $_GET["share"];
+               $workspaces = mysqli_fetch_array(mysqli_query($link,"SELECT * FROM `workspaces` WHERE `shareID`='$shareID'"));
+
+               if(count($workspaces) > 0){
+                    $copyPath = "./docker/volumes/" . $workspaces["workspaceID"];
+                    $workspaceName = $workspaces["name"];
+               }
+          }
+
+
           $workspaceID = uuid();
 
-          mkdir("./docker/volumes/" . $workspaceID);
-          copy("./docker/templates/main.cpp","./docker/volumes/" . $workspaceID . "/main.cpp");
-          //echo shell_exec ("sudo chown -R genesis:genesis ./docker/volumes/" . $workspaceID);
+          recurse_copy($copyPath,"./docker/volumes/" . $workspaceID);
 
-          $query = mysqli_query($link,"INSERT INTO `workspaces` (`workspaceID`, `userID`, `name`)
-                                   VALUES ('$workspaceID', '$userID', 'Untitled Workspace')");
+          $query = mysqli_query($link,"INSERT INTO `workspaces` (`workspaceID`, `userID`, `shareID`, `name`)
+                                   VALUES ('$workspaceID', '$userID', '', '$workspaceName')");
+
+          if(!$query){
+               echo("Error description: " . mysqli_error($link));
+          }
+
      ?>
           <script>
                createCookie("genesis_workspaceID", "<?php echo $workspaceID; ?>", 1);
@@ -112,6 +144,12 @@
 
      </div>
 
+     <div id="share-modal" class="modal modal-small">
+          <div class="modal-content">
+               <p>Share this link to share a clone of your project.</p>
+               <input autofocus id="share-input" readonly type="text">
+          </div>
+     </div>
      <div id="delete-file-modal" class="modal modal-small modal-fixed-footer">
           <div class="modal-content">
                <h4>Attention!</h4>
@@ -166,20 +204,19 @@
      </div>
      <nav id="navbar">
           <div class="nav-wrapper">
-               <a href="#" class="genesis brand-logo center">GENESIS</a>
+               <a href="#!" class="genesis brand-logo center">GENESIS</a>
                <ul id="nav" class="left">
                     <li><a id="terminal-button" class="genesis waves-effect waves-light"><i class="material-icons right">keyboard</i>TERMINAL</a></li>
                </ul>
                <ul id="nav-mobile" class="right hide-on-med-and-down">
-                    <li><a class="genesis" href="#share"><i class="material-icons right">share</i>SHARE</a></li>
-
+                    <li><a id="share-button" class="genesis" href="#!"><i class="material-icons right">share</i>SHARE</a></li>
                </ul>
           </div>
      </nav>
      <div class="directory-show" id="parent">
           <div id="directory">
                <ul class="file-tree">
-                    <li class="context-file folder" data-path="/"><a id="workspace-name" class="folder context-file" data-path="/" href="#">Untitled Workspace</a>
+                    <li class="context-file folder" data-path="/"><a id="workspace-name" class="folder context-file" data-path="/" href="#"><?php echo $workspaceName; ?></a>
                          <ul id="initial_workspace">
 
                          </ul>

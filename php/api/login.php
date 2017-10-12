@@ -39,15 +39,17 @@
                     $workspaceID = $_POST['workspaceID'];
                     $query = mysqli_query($link,"UPDATE `workspaces` SET `userID`='$userID' WHERE `workspaceID`='$workspaceID'");
                     if(!$query){
-                         $response = error("Database error: " . mysqli_error($link), $response);
+                         error("Database error: " . mysqli_error($link), $response);
                     }
                }
           }
+     }else{
+          error("No match.", $response);
      }
 
      echo json_encode($response);
 
-     function error($error, $response){
+     function error($error, &$response){
           $response["success"] = false;
           array_push($response["errors"], $error);
           return $response;
