@@ -1,7 +1,8 @@
 $.getScript("./docker/terminal.js");
 
 $(document).ready(function() {
-     $('.modal').modal({
+     $('.modal').modal();
+     $('#login-modal').modal({
           complete: function() {
                loginCallback();
           }
@@ -51,12 +52,9 @@ function openFile(fileName) {
                data = JSON.parse(data);
                if (data.success) {
                     editor.setValue(data.file, -1);
-
                     currentFile = data.path;
                     editor.setReadOnly(false);
                     editor.focus();
-               } else {
-                    alert("There was a problem loading your workspace. Please try again later.")
                }
           }
      });
@@ -92,8 +90,6 @@ setInterval(function() {
                               openFile(path);
                          }
                     });
-               } else {
-                    alert("There was a problem loading your workspace. Please try again later.")
                }
           }
      });
@@ -368,19 +364,47 @@ function createUIDirectory(directory, root, path) {
 }
 
 function login(callback) {
-     if (readCookie("genesis_session") != null && readCookie("genesis_user") != null) {
-          callback();
-     } else {
-          lCallback = callback;
-          $('#login-modal').modal('open');
-     }
+     $.ajax({
+          url: './php/api/login.php',
+          type: 'POST',
+          data: {
+               username: readCookie("genesis_user"),
+               cookie: readCookie("genesis_session"),
+               workspaceID: readCookie('genesis_workspaceID')
+          },
+          success: function(data) {
+               console.log("callback login: " + data);
+               data = JSON.parse(data);
+               if (data.success) {
+                    createCookie("genesis_session", data.cookie, 1);
+                    callback();
+               } else {
+                    lCallback = callback;
+                    $('#login-modal').modal('open');
+               }
+          }
+     });
 }
 
 function loginCallback() {
-     if (readCookie("genesis_session") != null && readCookie("genesis_user") != null && lCallback != null) {
-          lCallback();
-     }
-     lCallback = null;
+     $.ajax({
+          url: './php/api/login.php',
+          type: 'POST',
+          data: {
+               username: readCookie("genesis_user"),
+               cookie: readCookie("genesis_session"),
+               workspaceID: readCookie('genesis_workspaceID')
+          },
+          success: function(data) {
+               console.log("secondary login: " + data);
+               data = JSON.parse(data);
+               if (data.success) {
+                    createCookie("genesis_session", data.cookie, 1);
+                    lCallback();
+               }
+               lCallback = null;
+          }
+     });
 }
 
 function remove(id) {

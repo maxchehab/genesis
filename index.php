@@ -44,6 +44,8 @@
 
           $copyPath = "./docker/templates/cpp";
           $workspaceName = 'Untitled Workspace';
+          $workspaceID = uuid();
+          $copy = true;
 
           if(isset($_GET["share"])){
                $shareID = $_GET["share"];
@@ -53,18 +55,27 @@
                     $copyPath = "./docker/volumes/" . $workspaces["workspaceID"];
                     $workspaceName = $workspaces["name"];
                }
+          }else if(isset($_GET["open"])){
+               $openID = $_GET["open"];
+               $workspaces = mysqli_fetch_array(mysqli_query($link, "SELECT * FROM `workspaces` WHERE `workspaceID`='$openID'"));
+               if(count($workspaces) > 0){
+                    if($workspaces["userID"] == $userID){
+                         $workspaceID = $workspaces["workspaceID"];
+                         $workspaceName = $workspaces["name"];
+                         $copy = false;
+
+                    }
+               }
           }
 
 
-          $workspaceID = uuid();
-
-          recurse_copy($copyPath,"./docker/volumes/" . $workspaceID);
-
-          $query = mysqli_query($link,"INSERT INTO `workspaces` (`workspaceID`, `userID`, `shareID`, `name`)
-                                   VALUES ('$workspaceID', '$userID', '', '$workspaceName')");
-
-          if(!$query){
-               echo("Error description: " . mysqli_error($link));
+          if($copy){
+               recurse_copy($copyPath,"./docker/volumes/" . $workspaceID);
+               $query = mysqli_query($link,"INSERT INTO `workspaces` (`workspaceID`, `userID`, `shareID`, `name`)
+                                        VALUES ('$workspaceID', '$userID', '', '$workspaceName')");
+               if(!$query){
+                    echo("Error description: " . mysqli_error($link));
+               }
           }
 
      ?>

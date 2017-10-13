@@ -6,7 +6,6 @@
      $response["errors"] = array();
 
      $username = encrypt_decrypt('encrypt', $_POST["username"]);
-     $password = $_POST["password"];
 
      $link = mysqli_connect("localhost", "genesis", "genesis", "genesis");
 
@@ -15,17 +14,24 @@
      }
 
      $users = mysqli_query($link,"SELECT * FROM `users` WHERE `username`='$username'");
-
      $found = false;
      $userID = '';
      while ($user = mysqli_fetch_array($users)) {
-          if(hashword($password, $user['salt']) == $user['password']){
-               $userID = $user['userID'];
-               $found = true;
-               break;
+          if(isset($_POST["password"])){
+               if(hashword($_POST["password"], $user['salt']) == $user['password']){
+                    $userID = $user['userID'];
+                    $found = true;
+                    break;
+               }
+          }else if(isset($_POST["cookie"])){
+               if($_POST["cookie"] == $user['cookie']){
+                    $userID = $user['userID'];
+                    $found = true;
+                    break;
+               }
           }
-     }
 
+     }
      $response["success"] = $found;
 
      if($response["success"]){

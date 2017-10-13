@@ -1,14 +1,18 @@
-.root .menu-item-delete, .root .menu-item-delete-directory, .root .menu-item-delete-file{
-     display:none !important;
+.card:hover {
+     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 20px 20px rgba(0, 0, 0, 0.22);
 }
 
-.modal-small{
+.root .menu-item-delete, .root .menu-item-delete-directory, .root .menu-item-delete-file {
+     display: none !important;
+}
+
+.modal-small {
      max-height: 240px;
      width: 600px;
 }
 
-.directory .menu-item-delete-file, .del-file #menu-item-directory, .del-file .menu-item-delete-directory, .del-file #menu-item-file{
-     display:none;
+.directory .menu-item-delete-file, .del-file #menu-item-directory, .del-file .menu-item-delete-directory, .del-file #menu-item-file {
+     display: none;
 }
 
 .terminal-show #editor {
@@ -19,10 +23,9 @@
      left: 0;
 }
 
-#directory{
+#directory {
      background-color: #272822;
 }
-
 
 .terminal-hide #editor {
      position: absolute;
@@ -32,7 +35,7 @@
      left: 0;
 }
 
-#parent{
+#parent {
      position: absolute;
      top: 64px;
      right: 0;
@@ -40,15 +43,15 @@
      left: 0;
 }
 
-
-.directory-show #container{
+.directory-show #container {
      position: absolute;
      top: 0;
      right: 0;
      bottom: 0;
      left: 15%;
 }
-.directory-show #directory{
+
+.directory-show #directory {
      position: absolute;
      top: 0;
      right: 85%;
@@ -56,7 +59,7 @@
      left: 0;
 }
 
-.directory-hide #container{
+.directory-hide #container {
      position: absolute;
      top: 0;
      right: 0;
@@ -64,7 +67,7 @@
      left: 0;
 }
 
-.directory-hide #directory{
+.directory-hide #directory {
      position: absolute;
      top: 0;
      right: 100%;
@@ -72,7 +75,7 @@
      left: 0;
 }
 
-body{
+body {
      background-color: #272822;
 }
 
@@ -84,20 +87,20 @@ body{
      font-family: 'Overpass Mono', monospace;
 }
 
-.register #register-form{
-     display:block;
+.register #register-form {
+     display: block;
 }
 
-.register #login-form{
-     display:none;
+.register #login-form {
+     display: none;
 }
 
-.login #register-form{
-     display:none;
+.login #register-form {
+     display: none;
 }
 
-.login #login-form{
-     display:block;
+.login #login-form {
+     display: block;
 }
 
 .terminal-show #terminal {
