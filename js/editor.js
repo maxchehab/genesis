@@ -316,7 +316,7 @@ function share(){
                if (!data.success) {
                     alert(data.errors.join('\n'));
                } else {
-                    $("#share-input").val("http://104.236.141.69/genesis/?share=" + data.shareID);
+                    $("#share-input").val("http://genesis.maxchehab.com/?share=" + data.shareID);
                     $('#share-modal').modal('open');
                     $("#share-input").select();
                }

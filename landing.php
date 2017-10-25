@@ -135,7 +135,7 @@
                               <p><?php echo $workspace["name"] ?></p>
                          </div>
                          <div class="card-action">
-                              <a href="/genesis/?open=<?php echo $workspace["workspaceID"]; ?>">Open</a>
+                              <a href="/?open=<?php echo $workspace["workspaceID"]; ?>">Open</a>
                          </div>
                     </div>
                </div>

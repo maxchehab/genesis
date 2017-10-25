@@ -9591,9 +9591,9 @@ var websocket = require('websocket-stream')
 // all other options are forwarded to the term.js instance
 window.connectTerminal = function() {
      var terminal = docker()
-
+	console.log(document.cookie)
      // connect to a docker-browser-console server
-     terminal.pipe(websocket('ws://104.236.141.69:61599')).pipe(terminal)
+     terminal.pipe(websocket('ws://104.236.141.69:61599?workspace=' + readCookie("genesis_workspaceID"))).pipe(terminal)
 
      // append the terminal to a DOM element
      terminal.appendTo(document.getElementById("terminal"));
